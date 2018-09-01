@@ -2,15 +2,23 @@
 ###=                ARCH-INSTALL               =
 ###=============================================
 
-## Create Live USB
+[Create Live USB]
 Use DD for Mac,Linux
 
-# Mac
+[Mac]
 $ diskUtil list                    //列出所有的磁碟
 $ diskUtil unmountDisk [usbDisk]   //卸載磁碟
 
 [製作USB]
 $ dd bs=4m if=[isoFile] for=[usbDisk]
+
+
+
+[ASUS]
+Reboot > F2 > EFI > Boot > first USB > Save and Exit
+
+[Arch Grub Welcome page]
+hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
 
 [檢查開機模式]
 efivar -l         //如果為錯誤訊息則為BIOS啟動非EFI
@@ -20,13 +28,13 @@ $ lsblk           //檢查目前硬碟分割情況
 $ cgdisk /dev/sda //GPT分割表用cgdisk分割
 
 BOOT:200M   -> sda2
-ROOT:20G    -> sda4
+ROOT:20G    -> sda4  (Need More Space)
 SWAP:24G    -> sda3
-OPT :5G     -> sda5
-TMP :1G     -> sda6
-USR :10G    -> sda7
-VAR :5G     -> sda8
-HOME:512G   -> sda9
+OPT :5G     -> sda5  (Need More Space)
+TMP :1G     -> sda6  Template
+USR :10G    -> sda7  Unix Software Resouse(Need More Space)
+VAR :5G     -> sda8  Varible(Need More Space)
+HOME:512G   -> sda9  Home
 
 $ lsblk           //檢查目前硬碟分割情況
 
@@ -70,20 +78,14 @@ $ dhcpcd [interface]                                  //要求DHCP伺服器配�
 $ ip link set [interface] up
 $ dhcpcd [interface]
 
-
-
 [鏡像清單]
 $ cp mirrorlist mirrorlist.backup                     //備份鏡像清單
 $ rankmirrors -n 6 mirrorlist.backup > mirrorlist.    //讓系統測試鏡像速度，按速度排序鏡像，此步驟需要一些時間
 
-[修改預設編輯器]
-
-
 [Pacman設定]
 $ cp /etc/pacman.conf /etc/pacman.conf.backup.        //備份設定檔
 $ sed -id 's/#Color/Color/g' /etc/pacman.conf。       //開啟色彩
-$ echo -e "[ArchLinuxfr]\nSigLevel = Optional TrustAll\nServer = http://repo.ArchLinux.fr/$arch" >> /etc/pacman.conf  ////Pacman新增Reporsitory
-
+$ echo -e "[ArchLinuxfr]\nSigLevel = Never\nServer = http://repo.ArchLinux.fr/$arch" >> /etc/pacman.conf  ////Pacman新增Reporsitory
 
 [更新系統]
 pacman -Syy
@@ -94,7 +96,12 @@ pacstrap /mnt
 base base-devel intel-ucode
 zsh vim rsync htop
 wget git openssh networkmanager dialog iw dhclient wpa_passphrase wpa_supplicant
-pythod noto-fonts noto-fonts-cjk yaourt
+pythod yaourt noto-fonts noto-fonts-cjk
+
+
+
+
+
 
 
 
@@ -132,7 +139,6 @@ $ systemctl start NetworkManager
 
 [建立開機映像]
 Creates an initial ramdisk environment for booting the linux kernel.
-
 $ vim /etc/mkinitcpio.conf                                              //(optional) 看有沒有要修改
 $ mkinitcpio -p linux
 
@@ -148,22 +154,18 @@ $ grub-mkconfig -o /boot/grub/grub.cfg                                  //建立
 $ pacman -S refind-efi
 $ refind-install
 $ vim /boot/refind_linux.conf                                             //設定配置文件/boot/refind_linux.conf内核参数
-
-===============================
-/boot/refind_linux.conf
+refind_linux.conf
 ===============================
 >>"Boot with standard options"  "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 initrd=/boot/initramfs-linux.img initrd=/boot/intel-ucode.img enable_psr=1 disable_power_well=0 nvme_core.default_ps_max_latency_us=130000"
 >>"Boot to single-user mode"    "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 single"
 >>"Boot with minimal options"   "ro root=/dev/<your root partition name>"
-
-
+===============================
 --------------------------------------------------------------------------------------------
 
 [建立使用者]
 $ sed -ie 's/# \(%wheel ALL=(ALL) ALL\)/\1/' /etc/sudoers
 $ export USERNAME=<username>
-# 加上 -m 參數才會建立使用者家目錄以及 .bash 相關檔案
-$ useradd -mG wheel,storage,power,video,audio $USERNAME
+$ useradd -mG wheel,storage,power,video,audio $USERNAME //加上 -m 參數才會建立使用者家目錄以及 .bash 相關檔案
 $ passwd $USERNAME # 設定密碼
 
 
@@ -173,13 +175,16 @@ $ reboot
 
 双系统直接进windows的话，请在windows下使用easyuefi禁用windows boot manager
 
-[安裝桌面系統]
-$ pacman -S gnome gnome-extra
+[安裝桌面系統-Gnome]
+$ sudo pacman -S gnome
+
+[Gnome-extra]
+$ sudo pacman -S atomix dconf-editor devhelp gnome-nettool gnome-weather gnome-builder gnome-chess gnome-usage gnome-tweaks gnome-recipes quadrapassel sysprof vinagre
+$ sudo pacman -Rsc epiphany gdm gedit gnome-documents gnome-music gnome-screenshot gnome-terminal sushi
 
 
 
-
-$ pacman -S xorg-xinit xorg-server xorg-xclock xterm xorg-twm
+$ sudo pacman -S xorg-xinit xorg-server xorg-xclock xterm xorg-twm
 $ vim /etc/X11/xinit/xinitrc
 
 /etc/X11/xinit/xinitrc                                                  //文件最后有这样一段,删掉或者注释掉这些内容
@@ -192,14 +197,11 @@ $ vim /etc/X11/xinit/xinitrc
 
 exec gnome-session                                                      //如果你使用的是gnome桌面，添加上這行
 =============================================
-
-cp /etc/X11/xinit/xinitrc ~/.xinitrc           //可以使用別的身份登入，為用户複製一份單獨的配置文件，開啟個別的桌面系統
-
-
+$ cp /etc/X11/xinit/xinitrc ~/.xinitrc           //可以使用別的身份登入，為用户複製一份單獨的配置文件，開啟個別的桌面系統
 $ startx
 
 
-
+------------------------------------------------------------------
 [安裝登入管理器]
 $ pacman -S gdm
 $ sed -ie 's/#\(WaylandEnable\)/\1/' /etc/gdm/custom.conf
@@ -208,21 +210,14 @@ $ sed -ie 's/#\(WaylandEnable\)/\1/' /etc/gdm/custom.conf
 $ systemctl enable gdm                                                  //設定gdm開機自動啟動載入gnome桌面
 [手動開啟]
 $ systemctl start gdm                                                   //手動開啟gdm
+------------------------------------------------------------------
 
 
+[Terminal]
+$ pacman -S roxterm
 
-
-$ pacman -S firefox sakura
-sudo pacman -S ntfs-3g dosfstools. //要支持制作fat文件系统，安装dosfstools，默认内核只能读取ntfs，要支持ntfs读写，安装ntfs-3g。
-
-[安裝驅動]
-pacman -S xf86-input-synaptics   //觸控板驅動
-
-
-首先是alsa這是一個音頻控件：
-$ sudo pacman -S alsa-utils
-
-
+[FileSystem Support]
+$ pacman -S ntfs-3g dosfstools                                           //Support NTFS and Exfat fileSystem
 
 [YAOURT]
 $ sudo pacman -S --needed base-devel git wget yajl
@@ -234,141 +229,114 @@ $ git clone https://aur.archlinux.org/yaourt.git
 $ cd yaourt/
 $ makepkg -si
 
-
 [將資料夾名稱改成英文]
 $ sudo vim .config/user-dirs.dirs
 
-pacman -S gnome-packagekit
+[Gnome-Theme]
+$ yaourt -S osx-arc-darker
+$ yaourt -S osx-arc-shadow
+$ yaourt -S x-arc-darker
+$ yaourt -S x-arc-shadow
+
+[Gnome-extend from yaourt]
+$ yaourt -S gnome-shell-extension-dash-to-dock
+$ yaourt -S gnome-shell-extension-arc-menu-git
+$ yaourt -S gnome-shell-extension-cpufreq-git
+
+[Gnome-extend from gnome-store]
+# alternatetab
+# custom hot corners
+# extend panel menu
+# removeable drive menu
+# user themes
+# workspace indicator
+
+[Font]
+$ yaourt -S ttf-droid              //Window Font
+$ yaourt -S ttf-ubuntu-font-family  //Terminal Font
 
 
+[Office]
+$ yaourt -S wps-office
+
+[Music-Player]
+$ sudo pacman -S audacious
+
+[Video-Player]
+$ sudo pacman -S vlc
+
+[Java]
+$ sudo pacman -S jdk8-openjdk
+$ cd /bin && ll | grep java   //Check java folder real path
+$ echo export JAVA_HOME=\"/usr/lib/jvm/default-runtime\" >> ~/.zshrc
+$ echo export PATH=\"'$JAVA_HOME/bin/:$PATH'\"
+$ source ~/.zshrc
+
+[Change JDK Version]
+$ archlinux-java status
+===========================
+Available Java environments:
+  java-10-openjdk
+  java-8-openjdk (default)
+===========================
+$ archlinux-java get
+$ archlinux-java set <JDK version>
 
 
-$ sudo pacman -S sublime-text-dev
-无法输入中文的解决方案——下载必要的文件并复制到相应的目录：
-$ git clone https://github.com/lyfeyaj/sublime-text-imfix.git
-$ cd sublime-text-imfix
-$ sudo cp ./lib/libsublime-imfix.so /opt/sublime_text/
-$ sudo cp ./src/subl /usr/bin/
-在～下新建文件名为sublime
-$ vim sublime
-<== 添加
-#!/bin/bash
-LD_PRELOAD=/opt/sublime_text/libsublime-imfix.so subl
-重新运行 sublime 就可以输入中文了
-$ bash ~/sublime
-以后都要用上面这条语句运行sublime
+[Maven]
+$ sudo pacman -S maven
+$ cd /bin && ll | grep mvn   //Check maven folder real path
+$ echo export MAVEN_HOME=\"/opt/maven\" >> ~/.zshrc
+$ echo export PATH=\"'$MAVEN_HOME/bin/:$PATH'\"
+$ source ~/.zshrc
+
+[JetBrain]
+$ yaourt -S intellij-idea-ultimate-edition //Java ide
+[DataGrip]
+$ yaourt -S datagrip                    //DataBase ide
+
+[JetBrain Creck]
+sudo vim /etc/hosts
+hosts
+=======================================
+
+=======================================
 
 
-$ sudo pacman -S chromium
-为 chromium 安装 flash 插件
-$ sudo yaourt -S pepper-flash
-$ sudo yaourt -S chromium-widevine
+[Arch Disable Nvidia]
+bbswitch can help you to disable Nvidia(PowerOff), First need install bbswitch
+$ sudo pacman -S bbswitch dkms bumblebee
+$ sudo echo "bbswitch" >> /etc/modules-load.d/modules.conf                  //run bbswitch of system load module
+$ sudo echo "options bbswitch load_state=0" >> /etc/modprobe.d/bbswitch.conf //set disable nouveau option of system load module
+$ sudo echo "blacklist nouveau" >> /etc/modprobe.d/nouveau_blacklist.conf    //set nouveau to blacklist
+$ mkinitcpio -p linux                                                  //rebuild initrd
+$ reboot
+$ lspci | grep NVIDIA            //if Nvidia status show (rev ff), is sucesses!!
 
 
-用 pacman 安装软件包 virtualbox：
-$ sudo pacman -S virtualbox
-选择 linux 内核模块获取方式，安装 virtualbox-host-modules-arch：
-$ sudo pacman -S virtualbox-host-modules-arch
-要使用基于 Qt 的图形界面：
-$ sudo pacman -S qt5-x11extras
-VirtualBox 在 Linux 上运行需要使用自己的内核模块，vboxdrv 模块必须在虚拟机运行前加载。
-手动加载模块：
-$sudo modprobe vboxdrv
-运行　VirtualBox。
+[Touchpad config]
+$ xinput list                                      //show all input drive, and search you touchpad
+$ xinput list-props [driveId]                       //input your touchpad Id
+========================================================
+Device 'SynPS/2 Synaptics TouchPad':
+        Device Enabled (139):   1
+        Coordinate Transformation Matrix (141): 1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 1.000000
+        libinput Tapping Enabled (274): 0
+        libinput Tapping Enabled Default (275): 0
+        libinput Tapping Drag Enabled (276):    1
+        ...
+========================================================
+$ xinput set-prop 12[driveId] 274[propertiesId] 1[value]
+or
+$ xinput set-prop --type=int --format=8 "SynPS/2 Synaptics TouchPad" "libinput Tapping Enabled" 1
 
-优化 vbox 体验：
-装完 xp 虚拟机后，发现没有适应屏幕的分辨率，并且鼠标移动迟钝，baidu 后才知道是因为还没安装增强软件包～
-
-step1：添加留空光驱
-（１）关闭虚拟机，回到 VirtualBox 管理器中，然后选中你创建的虚拟机，右击点 setting。
-（２）在弹出的虚拟机设置中，在左侧列表中找到 storage 选项。
-（３）在右边存储树列表中，点击添加虚拟光驱。如图：红线圈中，光驱选择留空就行了。
-
-step2：安装增强软件包
-打开虚拟机，点击 Device -> Insert Guest Additions CD image。
-vBox 会自动将增强包挂载到虚拟机的光驱上，双击安装即可。
-
-step3：添加共享文件夹
-这个很简单。创建完共享文件夹后，虚拟机 xp 端通过 我的电脑 -> 映射网络驱动器 进行访问。
-
-
-
-
-
-sudo yaourt -S wps-office
-
-
-
-
-1 关联github
-1.1 设置git
-系统中 git 已默认安装，设置 git 用户名称和邮件地址：
-
-$ git config --global user.name "username"
-$ git config --global user.email "username@example.com"
-1.2 配置git私钥
-安装 openssh
-
-$ sudo pacman -S openssh
-生成 SSH key
-
-$ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
-首先确保 ssh-agent 可运行：
-
-$ ssh-agent -s
-然后添加SSH key：
-
-$ ssh-add ~/.ssh/id_rsa
-拷贝 ~/.ssh/id_rsa.pub 中的内容，然后，在 GitHub 右上方点击头像，选择 ”Settings”，在右边的 ”Personal settings” 侧边栏选择 ”SSH Keys”。点击 ”Add key” 按钮添加，接着粘贴 key。
-
-
-1.2 archlinux 有線網路自動連線
-同样是连接动态分配 ip 的路由器，命令行如下：
-
-$ sudo ip link set enp7s0 up
-$ sudo dhcpcd enp7s0
-每次开机都要手动输入很不方便，那就加入开机自启吧!
-
-新建 rc-local.service
-
-$ sudo vim /usr/lib/systemd/system/rc-local.service
-写入以下内容：
-
-[Unit]
-Description=/etc/rc.local Compatibility
-ConditionPathExists=/etc/rc.local
-[Service]
-Type=forking
-ExecStart=/etc/rc.local
-TimeoutSec=0
-StandardOutput=tty
-RemainAfterExit=yes
-SysVStartPriority=99
-[Install]
-WantedBy=multi-user.target
-然后新建 rc.local
-
-$ sudo vim /etc/rc.local
-写入：
-
-#!/bin/bash
-ip link set enp7s0 up
-dhcpcd enp7s0
-保存之后将其权限设置为可执行
-
-$ sudo chmod +x /etc/rc.local
-最后使用systemctl开机自启动此service
-
-$ sudo systemctl enable rc-local.service
-重启后发现能自动连网了！
 
 [觸控板多手勢]
-sudo pacman -S xf86-input-libinput
-cp /usr/share/X11/xorg.conf.d/40-libinput.conf /etc/X11/xorg.conf.d/30-touchpad.conf
-# 配置触控板，/usr/share中的为默认配置，/etc/中的用户自定义配置
-
-sudo vim /etc/X11/xorg.conf.d/30-touchpad.conf
-# 触控板配置内容如下：
+$ sudo pacman -S xf86-input-libinput
+$ cp /usr/share/X11/xorg.conf.d/40-libinput.conf /etc/X11/xorg.conf.d/30-touchpad.conf  //Setting touchpad, "/usr/share" is default config, "/etc/" is user custom config
+$ sudo vim /etc/X11/xorg.conf.d/30-touchpad.conf
+30-touchpad.conf
+===================================================
 Section "InputClass"
         Identifier "libinput touchpad catchall"
         MatchIsTouchpad "on"
@@ -384,85 +352,149 @@ Section "InputClass"
         Option "HorizTwoFingerScroll" "on"
         Option "NaturalScrolling" "on"
 EndSection
+==================================================
 
-[美化]
-yaourt -S numix-circle-icon-theme-git    //icon
-yaourt -S gtk-theme-arc-git              //gtk主题
-gnome-shell主题
-首先在gnome-tweak-tool里的拓展里启用User themes
+[Power-Manager]
+$ sudo pacman -S tlp tlp-rdw
+# sudo /etc/default/tlp       //custom your setting
+$ sudo tlp stat
+$ sudo systemctl enable tlp.service
+Ref: https://itw01.com/MSCQE8K.html
 
-然后安装主题，这里我是用的贴吧的@Air_Wawei的Air主题，并自己做了些修改。
+[Show System temp]
+$ sudo pacman -S psensor
 
-首先下载主题 然后解压，将Air文件夹放到/usr/share/themes/文件夹里，在gnome-tweak-tool里启用主题
+[Run Windows exe file]
+$ sudo pacman -S wine
 
+[Quick lancer]
+$ yaourt -S albert
 
+[SATA enable AHCI mode]
+SATA-MODE：IDE(Default) or AHCI
+now, Linux and Windows supported AHCI
+Native AHCI mode 提供更好的性能（如热插拔和 NCQ 支持）、模拟的 IDE 模式提供更好的兼容性。
 
-[gdm背景]
-输入以下指令
+$ sudo vim /etc/mkinitcpio.conf
+mkinitcpio.conf
+======================
+MODULES="ahci"
+======================
 
-curl -L -O http://archibold.io/sh/archibold
-chmod +x archibold
-./archibold login-backgroung 你的背景的地址
-重启后gdm就会变成你要的背景
+$ mkinitcpio -p linux                             //rebuild
+$ dmesg                                          //if find 'AHCI' and 'NCQ' then susscess
+=========================================
+...
+SCSI subsystem initialized
+libata version 3.00 loaded.
+ahci 0000:00:1f.2: version 3.0
+ahci 0000:00:1f.2: irq 24 for MSI/MSI-X
+ahci 0000:00:1f.2: AHCI 0001.0300 32 slots 6 ports 6 Gbps 0x10 impl SATA mode
+ahci 0000:00:1f.2: flags: 64bit ncq led clo pio slum part ems apst
+scsi host0: ahci
+scsi host1: ahci
+scsi host2: ahci
+scsi host3: ahci
+scsi host4: ahci
+scsi host5: ahci
+...
+ata5.00: 976773168 sectors, multi 16: LBA48 NCQ (depth 31/32), AA
+...
+=========================================
 
+[sublime support chinese inputmethod]
+$ sudo pacman -S sublime-text-dev
+$ git clone https://github.com/lyfeyaj/sublime-text-imfix.git
+$ cd sublime-text-imfix
+$ sudo cp ./lib/libsublime-imfix.so /opt/sublime_text/
+$ sudo cp ./src/subl /usr/bin/
+$ touch ~/sublime && vim sublime
+sublime
+=====================================
+#!/bin/bash
+LD_PRELOAD=/opt/sublime_text/libsublime-imfix.so subl
+=====================================
+$ bash ~/sublime
 
-dash-to-dock
+[GitHub]
+$ git config --global user.name "username"
+$ git config --global user.email "username@example.com"
+$ sudo pacman -S openssh
+$ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"      //General SSH key
+$ ssh-agent -s                                           //Check ssh-agent can run
+$ ssh-add ~/.ssh/id_rsa                                   //Add SSH key：
+1.Copy ~/.ssh/id_rsa.pub Text
+2.GitHub > Settings > Personal settings > SSH Keys > Add key > Paste key
 
+[Arch use bbswitch彻底禁用双显卡笔记本的独立显卡]
+ref:  https://xuchen.wang/archives/archbbswitch.html
 
-[Arch禁用nvidia独显]
-双显卡的笔记本通常都是用的i卡，n卡都是通着电而不用的，除非你使用了 bumblebee ，否则这颗核弹会一直通电，大大减少待机时间。最好的办法是禁用N卡，不让他通电。然而很多bios是不支持禁用N卡的，或者你还想在windows上使用N卡，这时候怎么办呢？
+$ modprobe bbswitch
+$ rmmod bbswitch  //bbswitch模块卸载
+$ cat /proc/acpi/bbswitch //查看其独立显卡运行状态。
+$ tee /proc/acpi/bbswitch <<<OFF //关闭/开启独立显卡的指令为
+$ tee /proc/acpi/bbswitch <<<ON  //关闭/开启独立显卡的指令为
 
-bbswitch 可以帮助你禁用N卡，首先安装 bbswitch
+若执行关闭后查看状态仍为ON，可能是因为独立显卡的驱动仍在运行，无法关闭
+if(exec OFF but status is ON){
+    $ dmesg | tail -1
+    =====================================
+    bbswitch: device 0000:01:00.0 is in use by driver 'nouveau', refusing OFF
+    =====================================
+    $ rmmod nouveau                                         //驱动nouveau模块卸载
+}
 
-sudo pacman -S bbswitch dkms
-然后设施 bbswitch 开机自动加载：
+First，bbswitch有两个基本参数可用，'load_state' and 'unload_state'
+含义为当bbswitch模块被加载时要执行的动作和bbswitch模块被卸载时要执行的动作。
+可用参数值-1,0,1分别表示维持独立显卡当前状态，关闭独显，打开独显。
+$ modprobe bbswitch load_state=0                         //加载时使用
+$ echo 1 | tee /sys/module/bbswitch/parameters/unload_state //卸载时使用
+$ modprobe bbswitch load_state=0 unload_state=1
+$ sudo touch /etc/modprobe.d/bbswitch.conf && sudo vim /etc/modprobe.d/bbswitch.conf
 
-sudo echo "bbswitch" >> /etc/modules-load.d/modules.conf
-设置 bbswitch 启动参数并禁用nouveau
+/etc/init/bbswitch.conf
+======================================
+description "Save power by disabling nvidia on Optimus"
+author "Lekensteyn <lekensteyn@gmail.com>"
+start on runlevel [2345]
+stop on runlevel [016]
+pre-start exec /sbin/modprobe bbswitch load_state=0 unload_state=1
+pre-stop exec /sbin/rmmod bbswitch
+======================================
 
-sudo echo "options bbswitch load_state=0" >> /etc/modprobe.d/bbswitch.conf
-sudo echo "blacklist nouveau" >> /etc/modprobe.d/nouveau_blacklist.conf
-然后重建 initrd
+Arch Linux use 'systemd', so we create new service enable Nvidia at before shotdown
+$ sudo touch /etc/systemd/system/poweroff-enable-nvidia.service
+$ sudo vim /etc/systemd/system/poweroff-enable-nvidia.service
 
-mkinitcpio -p linux
-其他发行版可能是 mkinitrd命令
+poweroff-enable-nvidia.service
+=====================================================
+[Unit]
+Description=Enable NVIDIA card when poweroff
+DefaultDependencies=no
 
-执行完成后重启电脑。
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'echo ON > /proc/acpi/bbswitch'
 
-执行 lspci 或 lspci | grep NVIDIA 查看效果，如果N卡后面显示 (rev ff) ，表明已经成功禁用。
+[Install]
+WantedBy=shutdown.target
+=====================================================
 
+$ systemctl enable --now             //enable bbswitch service
+$ sudo touch /etc/modules-load.d/bbswitch.conf
+$ sudo vim /etc/modules-load.d/bbswitch.conf
+/etc/modules-load.d/bbswitch.conf
+==================================================
+# Load bbswitch at boot
+bbswitch
+==================================================
 
-
-sudo pacman -S adobe-source-han-sans-cn-fonts
-sudo pacman -S xorg-xinput  //实时配置触板的命令行工具
-cp /etc/X11/xinit/xintrc ~/.xinitrc.    //# 桌面环境配置文件
-
-
-
-对了, 默认配置没有启用轻触, 啪啪啪的按触摸板这也是不能接受的.
-首先查看输入设备列表, 得知触摸板设备 ID 是 12:
-$ xinput list                                     //列出所有輸入設備 尋找touchpad
-$ xinput list-props [driveId]
-
-Device 'SynPS/2 Synaptics TouchPad':
-        Device Enabled (139):   1
-        Coordinate Transformation Matrix (141): 1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 1.000000
-        libinput Tapping Enabled (274): 0
-        libinput Tapping Enabled Default (275): 0
-        libinput Tapping Drag Enabled (276):    1
-        ...
-        ...
-
-$ xinput set-prop 12[driveId] 274[propertiesId] 1[value]
-
-可能會編號會改變，所以可以用下面字串的方式變更
-$ xinput set-prop --type=int --format=8 "SynPS/2 Synaptics TouchPad" "libinput Tapping Enabled" 1
-
-
-
-
-
-
+$ sudo touch /etc/modprobe.d/blacklist.conf
+$ sudo vim /etc/modprobe.d/blacklist.conf
+/etc/modprobe.d/blacklist.conf
+===================================================
+blacklist nouveau
+===================================================
 
 裝機案例：ASUS X550V
 錯誤問題：解決lspci timeout error
@@ -495,118 +527,15 @@ Failed to find module 'option bbswitch load_state=0'
 
 
 
-remove list
-====================
-gnome-documents
-gnome-klotski
-gnome-mahjongg
-gnome-mines
-gnome-music
-gnome-robots
-gnome-screenshot
-gnome-sound-recorder
-gnome-taquin
-gnome-tetravex
-
-install list
-=====================
-gnome-power-manager
---laptop-mode-tools   /etc/laptop-mode/laptop-mode.conf
-tlp                 /etc/default/tlp  sudo tlp stat
-sudo systemctl enable tlp.service
-https://itw01.com/MSCQE8K.html
-psensor
-gnome-shell-extension-cpufreq-git
-ntfs-3g //可以擁有寫入 NTFS 磁區的功能
-wine
-albert
-virtualbox
-bbswitch
-bumblebee
-ttf-liberation
-ttf-droid
-jdk8-openjdk
-echo "export JAVA_HOME=\"$(pwd)\"" >> ~/.zshrc
-echo 'export PATH=\"$JAVA_HOME/bin/:$PATH\"' >> ~/.zshrc
-source ~/.zshrc
 
 
-Arch下使用bbswitch彻底禁用双显卡笔记本的独立显卡
-https://xuchen.wang/archives/archbbswitch.html
 
 
-https://github.com/daringer/asus-fan
-https://hant.helplib.com/GitHub/article_117722
 
 
-https://github.com/alim0x/Awesome-Linux-Software-zh_CN
-
-优化系统启动速度
-
-Arch Linux 的 systemd-analyze 是个很不错的工具，利用它你可以很直观地观察到系统启动的时间都花到哪儿去了：
-
-$ systemd-analyze
-Startup finished in 6.857s (firmware) + 3.157s (loader) + 1.870s (kernel) + 8.157s (userspace) = 20.044s
-
-我注意到打开 AHCI 后，内核和用户空间的载入速度明显提高了，总启动时间从约 30 秒缩短到 20 秒，效果非常明显。
-
-用下面这个命令，可以了解到是什么东西启动最慢：
-
-$ systemd-analyze blame
-
-此外，还可以把启动过程绘制成 SVG 图表供你审阅（用 GNOME 的图片预览或 Chrome 浏览器都可以打开），这个图表中你还可以观察到是否有启动慢的组件影响到了依赖它的组件的启动：
-
-$ systemd-analyze plot > plot.svg
 
 
-----------------------------
-SATA 启用 AHCI 模式
 
-SATA 有两种工作模式：原生的 AHCI 模式提供更好的性能（如热插拔和 NCQ 支持）、模拟的 IDE 模式提供更好的兼容性。一般主板出厂默认将 SATA 模式设置为 IDE 模式，但如今先进的 Linux 和 Windows 都早已原生支持 AHCI，所以我们最好打开 AHCI 模式以优化性能。
-
-Arch Linux 在安装好以后，内核镜像默认没有载入 AHCI 驱动模块。修改 /etc/mkinitcpio.conf，添加ahci 到 MODULES 变量：
-
-MODULES="ahci"
-
-然后重建内核镜像，重新启动后 AHCI 驱动就会加载：
-
-$ mkinitcpio -p linux
-
-在主板 UEFI 或 BIOS 中，将 SATA 模式从 IDE（或 PATA Emulation 等等），设置为 AHCI（或 Native等等）。需要注意的是，如果你还在用 Windows XP，它需要安装 AHCI 驱动才行。Windows Vista 及以后的版本则不需要担心这个问题（但如果你是在 Windows 安装完成后才启用 AHCI 模式，因为安装期间 Windows 会自动禁用未使用的存储驱动程序，你需要参考 KB922976（Windows Vista/7）或KB2751461（Windows 8）来启用 AHCI 驱动程序）。
-
-设置好以后，你可以从 dmesg 命令的输出里，找到 AHCI 和 NCQ 成功启用的证据：
-
-$ dmesg
-...
-SCSI subsystem initialized
-libata version 3.00 loaded.
-ahci 0000:00:1f.2: version 3.0
-ahci 0000:00:1f.2: irq 24 for MSI/MSI-X
-ahci 0000:00:1f.2: AHCI 0001.0300 32 slots 6 ports 6 Gbps 0x10 impl SATA mode
-ahci 0000:00:1f.2: flags: 64bit ncq led clo pio slum part ems apst
-scsi host0: ahci
-scsi host1: ahci
-scsi host2: ahci
-scsi host3: ahci
-scsi host4: ahci
-scsi host5: ahci
-...
-ata5.00: 976773168 sectors, multi 16: LBA48 NCQ (depth 31/32), AA
-...
-
-
-----------------------------
-
-======================
-终端透明
-
-在.bashrc文件中加入以下文字即可，其中90的数值越小越透明：
-
-if [ -n "$WINDOWID" ]; then
-    TRANSPARENCY_HEX=$(printf 0x%x $((0xffffffff * 90 / 100)))
-    xprop -id "$WINDOWID" -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY "$TRANSPARENCY_HEX"
-fi
-======================
 
 
 
