@@ -1,16 +1,16 @@
 
 # ArchLinuxNote #
 
-#### [Mac]
+
+## Install guide
+#### [for Mac]
     $ diskUtil list                    //列出所有的磁碟
     $ diskUtil unmountDisk [usbDisk]   //卸載磁碟
 
 #### [Live USB]
     $ dd bs=4m if=[isoFile] for=[usbDisk]
 
-
-
-#### [ASUS]
+#### [for ASUS]
 Reboot > F2 > EFI > Boot > first USB > Save and Exit
 
 #### [Arch Grub Welcome page]
@@ -19,18 +19,25 @@ hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
 #### [Check boot mode]
     efivar -l         //如果為錯誤訊息則為BIOS啟動非EFI
 
+
+## Format
 #### [硬碟分割]
     $ lsblk           //檢查目前硬碟分割情況
     $ cgdisk /dev/sda //GPT分割表用cgdisk分割
     
     BOOT:200M   -> sda2
-    ROOT:20G    -> sda4  (Need More Space)
+    ROOT:20G    -> sda4
     SWAP:24G    -> sda3
-    OPT :5G     -> sda5  (Need More Space)
-    TMP :1G     -> sda6  Template
-    USR :10G    -> sda7  Unix Software Resouse(Need More Space)
-    VAR :5G     -> sda8  Varible(Need More Space)
-    HOME:512G   -> sda9  Home
+    OPT :5G     -> sda5
+    TMP :1G     -> sda6  
+    USR :10G    -> sda7  
+    VAR :5G     -> sda8  
+    HOME:512G   -> sda9
+    
+    USR : Unix-Software-Resouse
+    TMP : Template
+    VAR : Varible
+    
 <br/>
 
     $ lsblk           //檢查目前硬碟分割情況
@@ -55,7 +62,11 @@ hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
     $ swapon /dev/sda3                                    //啟用SWAP
 
 
-#### [無線網路2]
+## NetWork
+#### [Wireless]
+    $ wifi-menu
+    
+#### [Wireless2]
     $ ip link                                             //顯示網路介面
     $ ip link set [interface] up                          //啟用介面
     $ iw [interface] link                                 //確認無線裝置連線狀態
@@ -67,27 +78,32 @@ hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
     $ dhclient wlan0                                      //要求DHCP伺服器配發動態IP
     $ ping -c 3 8.8.8.8                                   //測試連線
 
-#### [有線網路]
+#### [ethnet]
     $ ip link set [interface] up                          //啟用介面
     $ dhcpcd [interface]                                  //要求DHCP伺服器配發動態IP
 
-#### [USB手機網路]
+#### [Net By Usb]
     $ ip link set [interface] up
     $ dhcpcd [interface]
 
-#### [鏡像清單]
+
+## Pacman
+##### package manager, command and application and...
+#### [Pacman Mirrorlist config setting]
     $ cp mirrorlist mirrorlist.backup                     //備份鏡像清單
     $ rankmirrors -n 6 mirrorlist.backup > mirrorlist.    //讓系統測試鏡像速度，按速度排序鏡像，此步驟需要一些時間
 
-#### [Pacman設定]
+#### [Pacman config setting]
     $ cp /etc/pacman.conf /etc/pacman.conf.backup.        //備份設定檔
     $ sed -id 's/#Color/Color/g' /etc/pacman.conf。       //開啟色彩
     $ echo -e "[ArchLinuxfr]\nSigLevel = Never\nServer = http://repo.ArchLinux.fr/$arch" >> /etc/pacman.conf  ////Pacman新增Reporsitory
 
-#### [更新系統]
+
+## Download and Install base system
+#### [Update pacman repostory]
     $ pacman -Syy
 
-#### [安裝套件]
+#### [Install packages]
     $ pacstrap /mnt
 
 >base base-devel intel-ucode
@@ -95,31 +111,31 @@ zsh vim rsync htop
 wget git openssh networkmanager dialog iw dhclient wpa_passphrase wpa_supplicant
 pythod yaourt noto-fonts noto-fonts-cjk
 
-#### [設定系統]
+#### [System config setting]
     $ genfstab -U /mnt | sed -e 's/relatime/noatime/g' >> /mnt/etc/fstab   //開機時的設定檔，開機時會依這個檔案的內容掛載檔案系統。
     $ blkid                                                                //顯示各磁碟資訊
     $ vim /mnt/etc/fstab                                                   //確認UUID是否正確（和 blkid 比對）
 
-#### [進入掛載系統]
+#### [Into System]
     $ arch-chroot /mnt /bin/bash
 
-#### [設定語系]
+#### [Language]
     $ sed -i -e 's/^#\(en_US\|zh_TW\)\(\.UTF-8\)/\1\2/g' /etc/locale.gen     //en_US.UTF-8 和 zh_TW.UTF-8 的註解拿掉
     $ locale-gen
     $ echo "LANG=en_US.UTF-8" > /etc/locale.conf
 
-#### [設定時間]
+#### [Date and Time]
     $ export TIMEZONE=Asia/Taipei
     $ ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime
     $ hwclock --systohc
     $ systemctl enable systemd-timesyncd
 
-#### [設定電腦名稱]
+#### [Computer name]
     $ export HOSTNAME=<hostname>
     $ echo $HOSTNAME > /etc/hostname
     $ sed -ie "8i 127.0.1.1\t$HOSTNAME.localdomain\t$HOSTNAME" /etc/hosts
 
-#### [設定啟動程式]（systemctl）
+#### [Auto Service controller]（systemctl）
     $ systemctl enable fstrim.timer                                         //有SSD才需要，啟用每週執行 fstrim
     $ systemctl enable NetworkManager
 
@@ -154,7 +170,7 @@ refind_linux.conf
 > "Boot with minimal options"   "ro root=/dev/<your root partition name>"
 
 
-#### [建立使用者]
+#### [Create User]
     $ sed -ie 's/# \(%wheel ALL=(ALL) ALL\)/\1/' /etc/sudoers
     $ export USERNAME=<username>
     $ useradd -mG wheel,storage,power,video,audio $USERNAME //加上 -m 參數才會建立使用者家目錄以及 .bash 相關檔案
@@ -164,7 +180,13 @@ refind_linux.conf
 
 双系统直接进windows的话，请在windows下使用easyuefi禁用windows boot manager
 
-#### [安裝桌面系統-Gnome]
+GUI-Desktop
+> Gnome
+> KDE
+> XFCE
+> ...
+
+#### [Install GUI Desktop-Gnome]
     $ sudo pacman -S gnome
 
 #### [Gnome-extra]
@@ -172,11 +194,10 @@ refind_linux.conf
     $ sudo pacman -Rsc epiphany gdm gedit gnome-documents gnome-music gnome-screenshot gnome-terminal sushi
 
 
-
     $ sudo pacman -S xorg-xinit xorg-server xorg-xclock xterm xorg-twm
     $ vim /etc/X11/xinit/xinitrc
 
-/etc/X11/xinit/xinitrc                                                  //文件最后有这样一段,删掉或者注释掉这些内容
+/etc/X11/xinit/xinitrc                                                   //註解以下內容
 
 >\#twm &
 >\#xclock -geometry 50x50-1+1 &
@@ -191,13 +212,13 @@ refind_linux.conf
 
 
 ------------------------------------------------------------------
-#### [安裝登入管理器]
+#### [Install Desktop Manager]
     $ pacman -S gdm
     $ sed -ie 's/#\(WaylandEnable\)/\1/' /etc/gdm/custom.conf
 
-#### [自動開啟]
+#### [Automatically Open]
     $ systemctl enable gdm                                                  //設定gdm開機自動啟動載入gnome桌面
-#### [手動開啟]
+#### [Manually Open]
     $ systemctl start gdm                                                   //手動開啟gdm
 ------------------------------------------------------------------
 
@@ -208,7 +229,7 @@ refind_linux.conf
 #### [FileSystem Support]
     $ pacman -S ntfs-3g dosfstools                                           //Support NTFS and Exfat fileSystem
 
-#### [YAOURT]
+#### [YAOURT-PackageManager]
     $ sudo pacman -S --needed base-devel git wget yajl
     $ cd /tmp
     $ git clone https://aur.archlinux.org/package-query.git
@@ -218,7 +239,7 @@ refind_linux.conf
     $ cd yaourt/
     $ makepkg -si
 
-#### [將資料夾名稱改成英文]
+#### [Change Folder name to Englist]
     $ sudo vim .config/user-dirs.dirs
 
 #### [Gnome-Theme]
@@ -254,6 +275,9 @@ refind_linux.conf
 #### [Video-Player]
     $ sudo pacman -S vlc
 
+
+
+## Develop
 #### [Java]
     $ sudo pacman -S jdk8-openjdk
     $ cd /bin && ll | grep java   //Check java folder real path
@@ -293,7 +317,7 @@ hosts
 
 
 
-
+## Graphy Card
 #### [Arch Disable Nvidia]
 bbswitch can help you to disable Nvidia(PowerOff), First need install bbswitch
 
@@ -324,7 +348,7 @@ or
     $ xinput set-prop --type=int --format=8 "SynPS/2 Synaptics TouchPad" "libinput Tapping Enabled" 1
 
 
-#### [觸控板多手勢]
+#### [TouchPad multiple config]
     $ sudo pacman -S xf86-input-libinput
     $ cp /usr/share/X11/xorg.conf.d/40-libinput.conf /etc/X11/xorg.conf.d/30-touchpad.conf  //Setting touchpad, "/usr/share" is default config, "/etc/" is user custom config
     $ sudo vim /etc/X11/xorg.conf.d/30-touchpad.conf
@@ -347,22 +371,24 @@ or
 >EndSection
 
 
-#### [Power-Manager]
-    $ sudo pacman -S tlp tlp-rdw
-    $ sudo vim /etc/default/tlp       //custom your setting
-    $ sudo tlp stat
-    $ sudo systemctl enable tlp.service
+
 
 Ref: https://itw01.com/MSCQE8K.html
+
 
 #### [Show System temp]
     $ sudo pacman -S psensor
 
-#### [Run Windows exe file]
-    $ sudo pacman -S wine
+
 
 #### [Quick lancer]
     $ yaourt -S albert
+
+#### [Run Windows exe file]
+    $ sudo pacman -S wine
+
+
+# System Setting
 
 #### [SATA enable AHCI mode]
 SATA-MODE：IDE(Default) or AHCI
@@ -395,7 +421,14 @@ mkinitcpio.conf
 >ata5.00: 976773168 sectors, multi 16: LBA48 NCQ (depth 31/32), AA
 >...
 
+#### [Power-Manager]
+    $ sudo pacman -S tlp tlp-rdw
+    $ sudo vim /etc/default/tlp       //custom your setting
+    $ sudo tlp stat
+    $ sudo systemctl enable tlp.service
 
+
+# 
 #### [sublime support chinese inputmethod]
     $ sudo pacman -S sublime-text-dev
     $ git clone https://github.com/lyfeyaj/sublime-text-imfix.git
@@ -430,8 +463,7 @@ ref:  https://xuchen.wang/archives/archbbswitch.html
     $ tee /proc/acpi/bbswitch \<\<\<\ OFF //关闭/开启独立显卡的指令为
     $ tee /proc/acpi/bbswitch \<\<\<\ ON  //关闭/开启独立显卡的指令为
 
-若执行关闭后查看状态仍为ON，可能是因为独立显卡的驱动仍在运行，无法关闭
-if exec OFF but status is ON
+if exec OFF but status is ON, Maybe Nvidia card not close yet
 
     $ dmesg | tail -1
     
@@ -440,9 +472,7 @@ if exec OFF but status is ON
     $ rmmod nouveau                                         //驱动nouveau模块卸载
  
 
-First，bbswitch有两个基本参数可用，load_state and unload_state
-含义为当bbswitch模块被加载时要执行的动作和bbswitch模块被卸载时要执行的动作。
-可用参数值-1,0,1分别表示维持独立显卡当前状态，关闭独显，打开独显。
+First，bbswitch has two parameter，load_state and unload_state
 
     $ modprobe bbswitch load_state=0                         //加载时使用
     $ echo 1 | tee /sys/module/bbswitch/parameters/unload_state //卸载时使用
