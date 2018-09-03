@@ -35,7 +35,7 @@ hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
 
     $ lsblk           //檢查目前硬碟分割情況
 
-####[初始化分割區]
+#### [初始化分割區]
     $ mkfs.fat -F32 /dev/sda2  //EFI
     $ mkswap /dev/sda3         //SWAP
 
@@ -147,11 +147,11 @@ Creates an initial ramdisk environment for booting the linux kernel
     $ vim /boot/refind_linux.conf                                             //設定配置文件/boot/refind_linux.conf内核参数
 refind_linux.conf
 
->"Boot with standard options"  "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 initrd=/boot/initramfs-linux.img initrd=/boot/intel-ucode.img enable_psr=1 disable_power_well=0 nvme_core.default_ps_max_latency_us=130000"
+> "Boot with standard options"  "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 initrd=/boot/initramfs-linux.img initrd=/boot/intel-ucode.img enable_psr=1 disable_power_well=0 nvme_core.default_ps_max_latency_us=130000"
 <br/>
->"Boot to single-user mode"    "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 single"
+> "Boot to single-user mode"    "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 single"
 <br/>
->"Boot with minimal options"   "ro root=/dev/<your root partition name>"
+> "Boot with minimal options"   "ro root=/dev/<your root partition name>"
 
 
 #### [建立使用者]
