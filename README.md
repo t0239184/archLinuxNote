@@ -1,5 +1,5 @@
 
-#ArchLinuxNote#
+# ArchLinuxNote #
 
 ####[Mac]
     $ diskUtil list                    //列出所有的磁碟
