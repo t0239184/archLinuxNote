@@ -148,9 +148,7 @@ Creates an initial ramdisk environment for booting the linux kernel
 refind_linux.conf
 
 > "Boot with standard options"  "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 initrd=/boot/initramfs-linux.img initrd=/boot/intel-ucode.img enable_psr=1 disable_power_well=0 nvme_core.default_ps_max_latency_us=130000"
-<br/>
 > "Boot to single-user mode"    "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 single"
-<br/>
 > "Boot with minimal options"   "ro root=/dev/<your root partition name>"
 
 
