@@ -317,6 +317,40 @@ GUI-Desktop
 
 #### [JetBrain]
     $ yaourt -S intellij-idea-ultimate-edition //Java ide
+
+Plugin:
+    -jRebel for Intellij
+
+Theme:
+    -Ladies Night 2
+
+Font:
+    -Yahei Mono
+    -Noto Sans Mono
+
+## jRebel Crack
+    https://github.com/ilanyu/ReverseProxy/releases/tag/v1.4
+
+    Download:
+    Mac    > ReverseProxy_darwin_amd64
+    Linux  > 
+
+1.執行
+    $ chmod 777 ReverseProxy_darwin_amd64
+    $ $bash ReverseProxy_darwin_amd64
+
+2.idea setting
+Open idea Setting > jRebel  choise Licence option
+
+    "http://127.0.0.1:8080/xin"        //port號後隨意填
+    "aaa@aaa.com"                      //只要填入合格mail格式即可
+
+### Don't close terminal
+3.switch work offline
+如果之後到期後再執行一次整個流程
+
+https://www.jianshu.com/p/8ce60dd452f4
+
 #### [DataGrip]
     $ yaourt -S datagrip                    //DataBase ide
 
