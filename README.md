@@ -500,6 +500,11 @@ sublime
 1.Copy ~/.ssh/id_rsa.pub Text
 2.GitHub > Settings > Personal settings > SSH Keys > Add key > Paste key
 
+
+#### [Git GUI]
+    $ yaourt -S smartgit
+    $ yaourt -S gitkaraken
+
 #### [Arch use bbswitch彻底禁用双显卡笔记本的独立显卡]
 ref:  https://xuchen.wang/archives/archbbswitch.html
 
