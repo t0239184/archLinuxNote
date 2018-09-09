@@ -505,6 +505,13 @@ sublime
     $ yaourt -S smartgit
     $ yaourt -S gitkaraken
 
+
+#### [FireFox plugin]
+    -Vimium                     //vim key Mapping
+    -Tree Style Tab             //vertical tab manager
+    -Video Download Helper      //video download
+    -Adblock plus               //anywhere block ad
+
 #### [Arch use bbswitch彻底禁用双显卡笔记本的独立显卡]
 ref:  https://xuchen.wang/archives/archbbswitch.html
 
