@@ -92,11 +92,11 @@ hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
 #### [Pacman Mirrorlist config setting]
     $ cd /etc/pacman.d/
     $ cp mirrorlist mirrorlist.backup                     //備份鏡像清單
-    $ rankmirrors -n 6 mirrorlist.backup > mirrorlist.    //讓系統測試鏡像速度，按速度排序鏡像，此步驟需要一些時間
+    $ rankmirrors -n 6 mirrorlist.backup > mirrorlist    //讓系統測試鏡像速度，按速度排序鏡像，此步驟需要一些時間
 
 #### [Pacman config setting]
-    $ cp /etc/pacman.conf /etc/pacman.conf.backup.        //備份設定檔
-    $ sed -id 's/#Color/Color/g' /etc/pacman.conf。       //開啟色彩
+    $ cp /etc/pacman.conf /etc/pacman.conf.backup        //備份設定檔
+    $ sed -id 's/#Color/Color/g' /etc/pacman.conf        //開啟色彩
     $ echo -e "[archlinuxfr]\nSigLevel = Never\nServer = http://repo.archlinux.fr/$arch" >> /etc/pacman.conf  ////Pacman新增Reporsitory
 
 
@@ -105,12 +105,10 @@ hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
     $ pacman -Syy
 
 #### [Install packages]
-    $ pacstrap /mnt
-
->base base-devel intel-ucode
-zsh gvim rsync htop
-wget git openssh networkmanager dialog iw dhclient wpa_passphrase wpa_supplicant
-pythod yaourt noto-fonts noto-fonts-cjk
+    $ pacstrap /mnt base base-devel
+    $ pacstrap /mnt intel-ucode
+    $ pacstrap /mnt zsh gvim rsync htop wget git openssh networkmanager dialog iw dhclient wpa_supplicant
+    $ pacstrap /mnt pythod yaourt noto-fonts noto-fonts-cjk
 
 #### [System config setting]
     $ genfstab -U /mnt | sed -e 's/relatime/noatime/g' >> /mnt/etc/fstab   //開機時的設定檔，開機時會依這個檔案的內容掛載檔案系統。
@@ -138,8 +136,6 @@ pythod yaourt noto-fonts noto-fonts-cjk
 
 #### [Auto Service controller]（systemctl）
     $ systemctl enable fstrim.timer                                         //有SSD才需要，啟用每週執行 fstrim
-    $ systemctl enable NetworkManager
-
     $ systemctl enable dhcpcd                                               //啟動dhcp網路
     $ systemctl enable NetworkManager
     $ systemctl start NetworkManager
@@ -177,6 +173,7 @@ refind_linux.conf
     $ useradd -mG wheel,storage,power,video,audio $USERNAME //加上 -m 參數才會建立使用者家目錄以及 .bash 相關檔案
     $ passwd $USERNAME # 設定密碼
     $ exit
+    $ umount -R /mnt
     $ reboot
     
 ---------------------------------------auto------------------------------------------
