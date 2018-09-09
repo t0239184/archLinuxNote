@@ -25,14 +25,14 @@ hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
     $ lsblk           //檢查目前硬碟分割情況
     $ cgdisk /dev/sda //GPT分割表用cgdisk分割
     
-    BOOT:200M   -> sda2
-    ROOT:20G    -> sda4
-    SWAP:24G    -> sda3
-    OPT :5G     -> sda5
-    TMP :1G     -> sda6  
-    USR :10G    -> sda7  
-    VAR :5G     -> sda8  
-    HOME:512G   -> sda9
+    BOOT:200M   -> sda2 ef00
+    ROOT:50G    -> sda4 8304 Linux x86-64 root
+    SWAP:24G    -> sda3 8200 Linux swap
+    OPT :15G    -> sda5 8300 Linux file system
+    TMP :1G     -> sda6 8300 Linux file system
+    USR :50G    -> sda7 8300 Linux file system
+    VAR :5G     -> sda8 8300 Linux file system
+    HOME:512G   -> sda9 8302 Linux /home
     
     USR : Unix-Software-Resouse
     TMP : Template
@@ -43,8 +43,8 @@ hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
     $ lsblk           //檢查目前硬碟分割情況
 
 #### [初始化分割區]
-    $ mkfs.fat -F32 /dev/sda2  //EFI
-    $ mkswap /dev/sda3         //SWAP
+    $ mkfs.vfat -F32 /dev/sda2  //EFI
+    $ mkswap /dev/sda3          //SWAP
 
     $ mkfs.ext4 /dev/sda4
     $ mkfs.ext4 /dev/sda5
@@ -86,17 +86,18 @@ hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
     $ ip link set [interface] up
     $ dhcpcd [interface]
 
-
+---------------------------------auto------------------------------------------
 ## Pacman
 ##### package manager, command and application and...
 #### [Pacman Mirrorlist config setting]
+    $ cd /etc/pacman.d/
     $ cp mirrorlist mirrorlist.backup                     //備份鏡像清單
     $ rankmirrors -n 6 mirrorlist.backup > mirrorlist.    //讓系統測試鏡像速度，按速度排序鏡像，此步驟需要一些時間
 
 #### [Pacman config setting]
     $ cp /etc/pacman.conf /etc/pacman.conf.backup.        //備份設定檔
     $ sed -id 's/#Color/Color/g' /etc/pacman.conf。       //開啟色彩
-    $ echo -e "[ArchLinuxfr]\nSigLevel = Never\nServer = http://repo.ArchLinux.fr/$arch" >> /etc/pacman.conf  ////Pacman新增Reporsitory
+    $ echo -e "[archlinuxfr]\nSigLevel = Never\nServer = http://repo.archlinux.fr/$arch" >> /etc/pacman.conf  ////Pacman新增Reporsitory
 
 
 ## Download and Install base system
@@ -107,7 +108,7 @@ hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
     $ pacstrap /mnt
 
 >base base-devel intel-ucode
-zsh vim rsync htop
+zsh gvim rsync htop
 wget git openssh networkmanager dialog iw dhclient wpa_passphrase wpa_supplicant
 pythod yaourt noto-fonts noto-fonts-cjk
 
@@ -177,6 +178,8 @@ refind_linux.conf
     $ passwd $USERNAME # 設定密碼
     $ exit
     $ reboot
+    
+---------------------------------------auto------------------------------------------
 
 双系统直接进windows的话，请在windows下使用easyuefi禁用windows boot manager
 
