@@ -26,12 +26,12 @@ hit 'e' on 'Arch install' add 'pci=nomsi' and 'modprobe.blacklist=nouveau'
     $ cgdisk /dev/sda //GPT分割表用cgdisk分割
     
     BOOT:200M   -> sda2 ef00
-    ROOT:50G    -> sda4 8304 Linux x86-64 root
     SWAP:24G    -> sda3 8200 Linux swap
+    ROOT:50G    -> sda4 8304 Linux x86-64 root
     OPT :15G    -> sda5 8300 Linux file system
     TMP :1G     -> sda6 8300 Linux file system
     USR :50G    -> sda7 8300 Linux file system
-    VAR :5G     -> sda8 8300 Linux file system
+    VAR :15G    -> sda8 8300 Linux file system
     HOME:512G   -> sda9 8302 Linux /home
     
     USR : Unix-Software-Resouse
@@ -194,17 +194,17 @@ GUI-Desktop
 
 
     $ sudo pacman -S xorg-xinit xorg-server xorg-xclock xterm xorg-twm
-    $ vim /etc/X11/xinit/xinitrc
+    $ sudo vim /etc/X11/xinit/xinitrc
 
 /etc/X11/xinit/xinitrc                                                   //註解以下內容
 
->\#twm &
->\#xclock -geometry 50x50-1+1 &
->\#xterm -geometry 80x50+494+51 &
->\#xterm -geometry 80x20+494-0 &
->\#exec xterm -geometry 80x66+0+0 -name login
->
->exec gnome-session                                                      //如果你使用的是gnome桌面，添加上這行
+    #twm &
+    #xclock -geometry 50x50-1+1 &
+    #xterm -geometry 80x50+494+51 &
+    #xterm -geometry 80x20+494-0 &
+    #exec xterm -geometry 80x66+0+0 -name login
+    
+    exec gnome-session                                                      //如果你使用的是gnome桌面，添加上這行
 
     $ cp /etc/X11/xinit/xinitrc ~/.xinitrc           //可以使用別的身份登入，為用户複製一份單獨的配置文件，開啟個別的桌面系統
     $ startx
@@ -221,13 +221,6 @@ GUI-Desktop
     $ systemctl start gdm                                                   //手動開啟gdm
 ------------------------------------------------------------------
 
-
-#### [Terminal]
-    $ pacman -S roxterm
-
-#### [FileSystem Support]
-    $ pacman -S ntfs-3g dosfstools                                           //Support NTFS and Exfat fileSystem
-
 #### [YAOURT-PackageManager]
     $ sudo pacman -S --needed base-devel git wget yajl
     $ cd /tmp
@@ -238,6 +231,12 @@ GUI-Desktop
     $ cd yaourt/
     $ makepkg -si
 
+#### [Terminal]
+    $ yaourt -S roxterm
+
+#### [FileSystem Support]
+    $ pacman -S ntfs-3g dosfstools                                           //Support NTFS and Exfat fileSystem
+    
 #### [Change Folder name to Englist]
     $ sudo vim .config/user-dirs.dirs
 
