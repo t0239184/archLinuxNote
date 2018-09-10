@@ -221,6 +221,17 @@ GUI-Desktop
     $ systemctl start gdm                                                   //手動開啟gdm
 ------------------------------------------------------------------
 
+#### [Init Home folder]
+    $ LC_ALL=C xdg-user-dirs-update                                        //Force create english name folder
+
+#### [Oh My Zsh]
+    $ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+#### [Git Clone Setting]
+    $ cd ~/Documents
+    $ git clone http://github.com/t0239184/archLinuxNote.git
+    
+
 #### [YAOURT-PackageManager]
     $ sudo pacman -S --needed base-devel git wget yajl
     $ cd /tmp
@@ -241,10 +252,9 @@ GUI-Desktop
     $ sudo vim .config/user-dirs.dirs
 
 #### [Gnome-Theme]
-    $ yaourt -S osx-arc-darker
-    $ yaourt -S osx-arc-shadow
     $ yaourt -S x-arc-darker
     $ yaourt -S x-arc-shadow
+    $ yaourt -S papirus-icon-theme
 
 #### [Gnome-extend from yaourt]
     $ yaourt -S gnome-shell-extension-dash-to-dock
