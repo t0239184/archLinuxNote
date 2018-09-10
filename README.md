@@ -157,14 +157,13 @@ Creates an initial ramdisk environment for booting the linux kernel
 #### [rEFind]
     $ pacman -S refind-efi
     $ refind-install
+    $ blkid | grep ROOT                                                       //將UUID記錄下來
     $ vim /boot/refind_linux.conf                                             //設定配置文件/boot/refind_linux.conf内核参数
 refind_linux.conf
 
-> "Boot with standard options"  "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 initrd=/boot/initramfs-linux.img initrd=/boot/intel-ucode.img enable_psr=1 disable_power_well=0 nvme_core.default_ps_max_latency_us=130000"
-
-> "Boot to single-user mode"    "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 single"
-
-> "Boot with minimal options"   "ro root=/dev/<your root partition name>"
+    "Boot with standard options"  "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 initrd=/boot/initramfs-linux.img initrd=/boot/intel-ucode.img enable_psr=1 disable_power_well=0 nvme_core.default_ps_max_latency_us=130000"
+    "Boot to single-user mode"    "root=UUID=<your uuid of root partition> rw quiet acpi_rev_override=1 single"
+    "Boot with minimal options"   "ro root=/dev/<your root partition name>"
 
 
 #### [Create User]
