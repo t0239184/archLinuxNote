@@ -289,14 +289,20 @@ GUI-Desktop
 #### [Office]
     $ yaourt -S wps-office
 
+#### [Enable audio]
+    $ yaourt -S alsa-utils
+    $ alsamixer
+    master hit M
+
 #### [Music-Player]
     $ sudo pacman -S audacious
 
 #### [Video-Player]
     $ sudo pacman -S vlc
-
-
-
+    
+#### [Youtube Download tool]
+    $ sudo pacman -S youtube-dl
+    
 ## Develop
 #### [Java]
     $ sudo pacman -S jdk8-openjdk
