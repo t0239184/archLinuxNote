@@ -256,6 +256,10 @@ GUI-Desktop
     $ yaourt -S x-arc-shadow
     $ yaourt -S papirus-icon-theme
 
+#### [Gnome-Shell-Theme]
+    $ yaourt -S gnome-shell-theme-macos-mojave
+
+
 #### [Gnome-extend from yaourt]
     $ yaourt -S gnome-shell-extension-dash-to-dock
     $ yaourt -S gnome-shell-extension-arc-menu-git
@@ -285,6 +289,23 @@ GUI-Desktop
 > export GTK_IM_MODULE="gcin"
 > export QT_IM_MODULE="gcin"
 > gcin &
+
+
+### [InputMethod]
+    $ sudo pacman -S ibus-rime
+
+
+~/.xinitrc
+> export LANG="zh_TW.UTF-8"
+> export LC_CTYPE="zh_TW.UTF-8"
+> export XMODIFIERS=@im="ibus"
+> export GTK_IM_MODULE="ibus"
+> export QT_IM_MODULE="ibus"
+> ibus &
+
+
+#### [Space preview]
+    $ sudo pacman -S sushi
 
 #### [Office]
     $ yaourt -S wps-office
