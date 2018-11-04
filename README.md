@@ -272,7 +272,7 @@ GUI-Desktop
 >removeable drive menu
 >user themes
 >workspace indicator
-
+>net speed
 #### [Font]
     $ yaourt -S ttf-droid              //Window Font
     $ yaourt -S ttf-ubuntu-font-family  //Terminal Font
