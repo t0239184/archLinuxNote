@@ -324,6 +324,14 @@ GUI-Desktop
 #### [Youtube Download tool]
     $ sudo pacman -S youtube-dl
     
+    
+#### [Terminal Screen split]
+    $ sudo pacman -S screen
+    
+#### [監控網路流量]
+    $ sudo pacman -S iftop
+
+    
 ## Develop
 #### [Java]
     $ sudo pacman -S jdk8-openjdk
